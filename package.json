@@ -1,10 +1,29 @@
 {
   "name": "nexus-plugin-shield",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/nexus-plugin-shield.esm.js",
   "description": "Nexus Shield Plugin",
+  "author": "Luc Vauvillier <luc.vauvillier@gmail.com>",
+  "homepage": "https://github.com/lvauvillier/nexus-plugin-shield",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lvauvillier/nexus-plugin-shield.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lvauvillier/nexus-plugin-shield/issues"
+  },
+  "keywords": [
+    "graphql",
+    "nexus",
+    "permissions",
+    "shield",
+    "server",
+    "authentication",
+    "authorization",
+    "rules"
+  ],
   "files": [
     "dist"
   ],
