@@ -22,17 +22,23 @@ npm install nexus-plugin-shield
 import { use } from 'nexus'
 import { shield, rule, deny, not, and, or } from 'nexus-plugin-shield'
 
-const isAuthenticated = rule()(async (parent, args, ctx, info) => {
-  return ctx.user !== null
-})
+const isAuthenticated = rule({ cache: 'contextual' })(
+  async (parent, args, ctx, info) => {
+    return ctx.user !== null
+  }
+)
 
-const isAdmin = rule()(async (parent, args, ctx, info) => {
-  return ctx.user.role === 'admin'
-})
+const isAdmin = rule({ cache: 'contextual' })(
+  async (parent, args, ctx, info) => {
+    return ctx.user.role === 'admin'
+  }
+)
 
-const isEditor = rule()(async (parent, args, ctx, info) => {
-  return ctx.user.role === 'editor'
-})
+const isEditor = rule({ cache: 'contextual' })(
+  async (parent, args, ctx, info) => {
+    return ctx.user.role === 'editor'
+  }
+)
 
 const permissions = shield({
   rules: {
@@ -48,7 +54,7 @@ const permissions = shield({
     Customer: isAdmin,
   },
   options: {
-    fallbackRule: 'deny',
+    fallbackRule: deny,
   },
 })
 
