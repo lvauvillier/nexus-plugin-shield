@@ -1,38 +1,73 @@
 # nexus-plugin-shield <!-- omit in toc -->
 
-**Contents**
+Nexus Shield is an permission layer for your application.
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+This project a lightweight port of [graphql-shield](https://github.com/maticzav/graphql-shield) for nexus framework.
 
-<br>
+All credits go to [graphql-shield](https://github.com/maticzav/graphql-shield)
+
+## Status
+
+- [x] wildcard rules
+- [x] custom errors
+- [x] logic rules (allow, deny, and, or, not)
+- [ ] logic rules (chain, race)
+- [ ] schema validation
+- [ ] rule results caching
+- [ ] fragments
 
 ## Installation
-
 
 ```
 npm install nexus-plugin-shield
 ```
 
-<br>
-
 ## Example Usage
 
-TODO
+### Setup
 
-<br>
+```typescript
+// app.ts
+import { use } from 'nexus'
+import { shield, rule, deny, not, and, or } from 'nexus-plugin-shield'
 
-## Worktime Contributions
+const isAuthenticated = rule()(async (parent, args, ctx, info) => {
+  return ctx.user !== null
+})
 
-TODO
+const isAdmin = rule()(async (parent, args, ctx, info) => {
+  return ctx.user.role === 'admin'
+})
 
-<br>
+const isEditor = rule()(async (parent, args, ctx, info) => {
+  return ctx.user.role === 'editor'
+})
 
-## Runtime Contributions
+const permissions = shield({
+  Query: {
+    frontPage: not(isAuthenticated),
+    fruits: and(isAuthenticated, or(isAdmin, isEditor)),
+    customers: and(isAuthenticated, isAdmin),
+  },
+  Mutations: {
+    '*': deny,
+    addFruitToBasket: isAuthenticated,
+  },
+})
 
-TODO
+use(permissions)
+```
 
-## Testtime Contributions
+### Custom errors
 
-TODO
+To return custom error messages to your client, you can return error instead of throwing it. Besides returning an error you can also return a `string` representing a custom error message.
+
+```typescript
+const ruleWithCustomError = rule()(async (parent, args, ctx, info) => {
+  return new Error('Custom error from rule.')
+})
+
+const ruleWithCustomErrorMessage = rule()(async (parent, args, ctx, info) => {
+  return 'Custom error message from rule.'
+})
+```
