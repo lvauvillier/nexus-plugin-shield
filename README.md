@@ -1,20 +1,21 @@
 # nexus-plugin-shield <!-- omit in toc -->
 
-Nexus Shield is an permission layer for your application.
+Nexus Shield is a permission layer for your nexus application.
 
-This project a lightweight port of [graphql-shield](https://github.com/maticzav/graphql-shield) for nexus framework.
+This project a lightweight port of [graphql-shield](https://github.com/maticzav/graphql-shield) for the nexus framework.
 
-All credits go to [graphql-shield](https://github.com/maticzav/graphql-shield)
+All credits go to the [graphql-shield](https://github.com/maticzav/graphql-shield) team.
 
-## Status
+## Project Status
 
 - [x] wildcard rules
 - [x] custom errors
 - [x] logic rules (allow, deny, and, or, not)
 - [ ] logic rules (chain, race)
 - [ ] schema validation
-- [ ] rule results caching
+- [ ] caching
 - [ ] fragments
+- [ ] tests
 
 ## Installation
 
@@ -28,6 +29,7 @@ npm install nexus-plugin-shield
 
 ```typescript
 // app.ts
+
 import { use } from 'nexus'
 import { shield, rule, deny, not, and, or } from 'nexus-plugin-shield'
 
