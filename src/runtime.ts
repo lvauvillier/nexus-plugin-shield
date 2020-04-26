@@ -1,18 +1,13 @@
 import { RuntimePlugin } from 'nexus/plugin'
+import { IRuleTypeMap } from './types'
+import { schemaPlugin } from './schema'
 
-export const plugin: RuntimePlugin = () => project => {
+export const plugin: RuntimePlugin<IRuleTypeMap, 'required'> = (ruleTree) => (
+  project
+) => {
   return {
-    context: {
-      create: _req => {
-        return {
-          'nexus-plugin-shield': 'hello world!'
-        }
-      },
-      typeGen: {
-        fields: {
-          'nexus-plugin-shield': 'string'
-        }
-      }
-    }
+    schema: {
+      plugins: [schemaPlugin(ruleTree)],
+    },
   }
 }
