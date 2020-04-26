@@ -1,13 +1,13 @@
 import { RuntimePlugin } from 'nexus/plugin'
-import { IRuleTypeMap } from './types'
+import { ISettings } from './types'
 import { schemaPlugin } from './schema'
 
-export const plugin: RuntimePlugin<IRuleTypeMap, 'required'> = (ruleTree) => (
+export const plugin: RuntimePlugin<ISettings, 'required'> = (settings) => (
   project
 ) => {
   return {
     schema: {
-      plugins: [schemaPlugin(ruleTree)],
+      plugins: [schemaPlugin(settings)],
     },
   }
 }

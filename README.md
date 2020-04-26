@@ -8,9 +8,11 @@ All credits go to the [graphql-shield](https://github.com/maticzav/graphql-shiel
 
 ## Project Status
 
+- [x] Per type and per field rules
 - [x] wildcard rules
 - [x] custom errors
 - [x] logic rules (allow, deny, and, or, not)
+- [x] fallback rule
 - [ ] logic rules (chain, race)
 - [ ] schema validation
 - [ ] caching
@@ -46,21 +48,35 @@ const isEditor = rule()(async (parent, args, ctx, info) => {
 })
 
 const permissions = shield({
-  Query: {
-    frontPage: not(isAuthenticated),
-    fruits: and(isAuthenticated, or(isAdmin, isEditor)),
-    customers: and(isAuthenticated, isAdmin),
-  },
-  Mutations: {
-    '*': deny,
-    addFruitToBasket: isAuthenticated,
+  rules: {
+    Query: {
+      frontPage: not(isAuthenticated),
+      fruits: and(isAuthenticated, or(isAdmin, isEditor)),
+      customers: and(isAuthenticated, isAdmin),
+    },
+    Mutations: {
+      '*': deny,
+      addFruitToBasket: isAuthenticated,
+    },
   },
 })
 
 use(permissions)
 ```
 
-### Custom errors
+### `shield({rules: rules, options: options})`
+
+#### `rules`
+
+A rule map must match your schema definition.
+
+#### `options`
+
+| Property     | Required | Default | Description                                        |
+| ------------ | -------- | ------- | -------------------------------------------------- |
+| fallbackRule | false    | allow   | The default rule for every "rule-undefined" field. |
+
+#### Custom errors
 
 To return custom error messages to your client, you can return error instead of throwing it. Besides returning an error you can also return a `string` representing a custom error message.
 

@@ -1,25 +1,33 @@
 import { plugin } from '@nexus/schema'
-import { IRuleTypeMap } from './types'
+import { ISettings, IRuleFunction } from './types'
+import { isRuleFieldMap, isRuleFunction } from './utils'
+import { allow } from './rules'
 
-function schemaPlugin(ruleTree: IRuleTypeMap) {
+function schemaPlugin(settings: ISettings) {
   return plugin({
     name: 'Nexus Schema Shield Plugin',
     onCreateFieldResolver(config) {
       const parentTypeName = config.parentTypeConfig.name
       const fieldName = config.fieldConfig.name
 
-      if (parentTypeName != 'Query' && parentTypeName != 'Mutation') {
+      const typeRules = settings.rules[parentTypeName]
+
+      if (!typeRules) {
         return
       }
 
-      if (!ruleTree[parentTypeName]) {
-        return
-      }
+      let rule: IRuleFunction
 
-      const rule =
-        ruleTree[parentTypeName][fieldName] || ruleTree[parentTypeName]['*']
-      if (!rule) {
-        return
+      if (isRuleFieldMap(typeRules)) {
+        rule =
+          typeRules[fieldName] ||
+          typeRules['*'] ||
+          settings.options?.fallbackRule ||
+          allow
+      } else if (isRuleFunction(typeRules)) {
+        rule = typeRules
+      } else {
+        rule = settings.options?.fallbackRule || allow
       }
 
       return async (root, args, ctx, info, next) => {
