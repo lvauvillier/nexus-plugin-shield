@@ -74,8 +74,6 @@ function schemaPlugin(settings: Settings) {
           }
         }
 
-        console.log(ctx._shield)
-
         // Execution
         try {
           const res = await rule.resolve(root, args, ctx, info, options)
