@@ -68,7 +68,6 @@ function schemaPlugin(settings: Settings) {
         }
 
         if (!ctx._shield) {
-          console.log('add !')
           ctx._shield = {
             cache: {},
           }
