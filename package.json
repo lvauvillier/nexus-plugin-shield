@@ -11,8 +11,8 @@
   "scripts": {
     "dev": "tsc --watch",
     "build:ts": "tsc",
-    "build": "yarn -s build:ts",
-    "prepack": "yarn -s build"
+    "build": "npm run -s build:ts",
+    "prepack": "npm run -s build"
   },
   "prettier": {
     "semi": false,
