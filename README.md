@@ -1,29 +1,16 @@
-# nexus-plugin-shield <!-- omit in toc -->
+# nexus-plugin-shield
 
-Nexus Shield is a permission layer for your nexus application.
-
-This project a lightweight port of [graphql-shield](https://github.com/maticzav/graphql-shield) for the nexus framework.
-
-All credits go to the [graphql-shield](https://github.com/maticzav/graphql-shield) team.
-
-## Project Status
-
-- [x] Per type and per field rules
-- [x] wildcard rules
-- [x] custom errors
-- [x] logic rules (allow, deny, and, or, not)
-- [x] fallback rule
-- [ ] logic rules (chain, race)
-- [ ] schema validation
-- [ ] caching
-- [ ] fragments
-- [ ] tests
+Unlock the power of [graphql-shield](https://github.com/maticzav/graphql-shield) in your nexus app
 
 ## Installation
 
 ```
 npm install nexus-plugin-shield
 ```
+
+## Known limitations
+
+- fragments not supported
 
 ## Example Usage
 
@@ -55,9 +42,13 @@ const permissions = shield({
       customers: and(isAuthenticated, isAdmin),
     },
     Mutations: {
-      '*': deny,
       addFruitToBasket: isAuthenticated,
     },
+    Fruit: isAuthenticated,
+    Customer: isAdmin,
+  },
+  options: {
+    fallbackRule: 'deny',
   },
 })
 
@@ -70,22 +61,8 @@ use(permissions)
 
 A rule map must match your schema definition.
 
+[graphql-shield documentation](https://github.com/maticzav/graphql-shield#shieldrules-options)
+
 #### `options`
 
-| Property     | Required | Default | Description                                        |
-| ------------ | -------- | ------- | -------------------------------------------------- |
-| fallbackRule | false    | allow   | The default rule for every "rule-undefined" field. |
-
-#### Custom errors
-
-To return custom error messages to your client, you can return error instead of throwing it. Besides returning an error you can also return a `string` representing a custom error message.
-
-```typescript
-const ruleWithCustomError = rule()(async (parent, args, ctx, info) => {
-  return new Error('Custom error from rule.')
-})
-
-const ruleWithCustomErrorMessage = rule()(async (parent, args, ctx, info) => {
-  return 'Custom error message from rule.'
-})
-```
+[graphql-shield documentation](https://github.com/maticzav/graphql-shield#options)

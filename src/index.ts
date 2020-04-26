@@ -1,10 +1,20 @@
 import { PluginEntrypoint } from 'nexus/plugin'
-import { ISettings } from './types'
+import { Settings } from './settings'
 
-export { rule } from './constructors'
-export { allow, deny, and, not, or } from './rules'
+export {
+  IRule,
+  IRules,
+  allow,
+  and,
+  chain,
+  deny,
+  inputRule,
+  not,
+  or,
+  rule,
+} from 'graphql-shield'
 
-export const shield: PluginEntrypoint<ISettings, 'required'> = (settings) => ({
+export const shield: PluginEntrypoint<Settings, 'required'> = (settings) => ({
   settings,
   packageJsonPath: require.resolve('../package.json'),
   runtime: {

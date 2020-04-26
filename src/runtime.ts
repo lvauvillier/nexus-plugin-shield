@@ -1,8 +1,8 @@
 import { RuntimePlugin } from 'nexus/plugin'
-import { ISettings } from './types'
+import { Settings } from './settings'
 import { schemaPlugin } from './schema'
 
-export const plugin: RuntimePlugin<ISettings, 'required'> = (settings) => (
+export const plugin: RuntimePlugin<Settings, 'required'> = (settings) => (
   project
 ) => {
   return {
