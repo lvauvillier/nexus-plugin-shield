@@ -23,19 +23,19 @@ import { use } from 'nexus'
 import { shield, rule, deny, not, and, or } from 'nexus-plugin-shield'
 
 const isAuthenticated = rule({ cache: 'contextual' })(
-  async (parent, args, ctx, info) => {
+  async (parent, args, ctx: NexusContext, info) => {
     return ctx.user !== null
   }
 )
 
 const isAdmin = rule({ cache: 'contextual' })(
-  async (parent, args, ctx, info) => {
+  async (parent, args, ctx: NexusContext, info) => {
     return ctx.user.role === 'admin'
   }
 )
 
 const isEditor = rule({ cache: 'contextual' })(
-  async (parent, args, ctx, info) => {
+  async (parent, args, ctx: NexusContext, info) => {
     return ctx.user.role === 'editor'
   }
 )
@@ -72,3 +72,13 @@ A rule map must match your schema definition.
 #### `options`
 
 [graphql-shield documentation](https://github.com/maticzav/graphql-shield#options)
+
+### Context type
+
+Nexus provide a global `NexusContext` interface you can use in your rules:
+
+```typescript
+rule()(async (parent, args, context: NexusContext, info) => {
+  // logic
+})
+```
