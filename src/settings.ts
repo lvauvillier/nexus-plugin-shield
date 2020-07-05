@@ -1,5 +1,6 @@
-import { IOptionsConstructor, ShieldRule } from 'graphql-shield/dist/types'
 import { GetGen } from '@nexus/schema/dist/core'
+import { ShieldRule } from 'nexus-shield/dist/rules'
+import { ShieldPluginSettings } from 'nexus-shield/dist/config'
 
 type GenTypes = Extract<keyof GetGen<'fieldTypes'>, string>
 type GenFields<T extends GenTypes> = Extract<
@@ -7,17 +8,26 @@ type GenFields<T extends GenTypes> = Extract<
   string
 >
 
-export type IRuleTypeMap = {
-  [T in GenTypes]?: ShieldRule | IRuleFieldMap<T>
+export type ShieldRules = ShieldRule<any, any> | ShieldRuleTypeMap
+
+export type ShieldRuleTypeMap = {
+  [T in GenTypes]?:
+    | ShieldRule<any, any> /*ShieldRule<T, any>*/
+    | ShieldRuleFieldMap<T>
 }
-export type IRuleFieldMap<T extends GenTypes> = {
-  [F in GenFields<T>]?: ShieldRule
+
+export type ShieldRuleFieldMap<T extends GenTypes> = {
+  [F in GenFields<T>]?: ShieldRule<any, any> /*ShieldRule<T, F>*/
 } & {
-  '*'?: ShieldRule
+  '*'?: ShieldRule<T, any>
 }
-export declare type IRules = ShieldRule | IRuleTypeMap
+
+interface SettingsOptions extends ShieldPluginSettings {
+  debug?: boolean
+  allowExternalErrors?: boolean
+}
 
 export interface Settings {
-  rules: IRules
-  options?: IOptionsConstructor
+  rules: ShieldRules
+  options?: SettingsOptions
 }

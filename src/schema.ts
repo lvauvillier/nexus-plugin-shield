@@ -1,40 +1,22 @@
 import hash from 'object-hash'
 import { plugin } from '@nexus/schema'
+import { allow } from 'nexus-shield'
+import { ShieldRule, ShieldContext } from 'nexus-shield/dist/rules'
+import { isShieldRule } from 'nexus-shield/dist/utils'
+
 import { Settings } from './settings'
-
-import {
-  ShieldRule,
-  IOptionsConstructor,
-  IOptions,
-  IFallbackErrorType,
-  IHashFunction,
-  IShieldContext,
-} from 'graphql-shield/dist/types'
-import {
-  isRuleFunction,
-  isRuleFieldMap,
-  withDefault,
-} from 'graphql-shield/dist/utils'
-import { allow } from 'graphql-shield'
-
-function normalizeOptions(options: IOptionsConstructor): IOptions {
-  if (typeof options.fallbackError === 'string') {
-    options.fallbackError = new Error(options.fallbackError)
-  }
-
-  return {
-    debug: options.debug !== undefined ? options.debug : false,
-    allowExternalErrors: withDefault(false)(options.allowExternalErrors),
-    fallbackRule: withDefault<ShieldRule>(allow)(options.fallbackRule),
-    fallbackError: withDefault<IFallbackErrorType>(
-      new Error('Not Authorised!')
-    )(options.fallbackError),
-    hashFunction: withDefault<IHashFunction>(hash)(options.hashFunction),
-  }
-}
+import { isShieldRuleFieldMap } from './utils'
 
 function schemaPlugin(settings: Settings) {
-  const options = normalizeOptions(settings.options || {})
+  const options = {
+    debug:
+      settings.options?.debug !== undefined ? settings.options?.debug : false,
+    allowExternalErrors: settings.options?.allowExternalErrors || false,
+    defaultRule: settings.options?.defaultRule || allow,
+    defaultError:
+      settings.options?.defaultError || new Error('Not Authorised!'),
+    hashFunction: settings.options?.hashFunction || hash,
+  }
 
   return plugin({
     name: 'Nexus Schema Shield Plugin',
@@ -42,29 +24,27 @@ function schemaPlugin(settings: Settings) {
       const parentTypeName = config.parentTypeConfig.name
       const fieldName = config.fieldConfig.name
 
-      let rule: ShieldRule
+      let rule: ShieldRule<any, any>
       const rules = settings.rules
 
-      if (isRuleFunction(rules)) {
+      if (isShieldRule(rules)) {
         rule = rules
       } else {
         const typeRules = rules[parentTypeName]
-        if (isRuleFunction(typeRules)) {
+        if (isShieldRule(typeRules)) {
           rule = typeRules
-        } else if (isRuleFieldMap(typeRules)) {
+        } else if (isShieldRuleFieldMap(typeRules)) {
           const defaultTypeRule = typeRules['*']
-          rule = withDefault(defaultTypeRule || options.fallbackRule)(
-            typeRules[fieldName]
-          )
+          rule = typeRules[fieldName] || defaultTypeRule || options.defaultRule
         } else {
-          rule = options.fallbackRule
+          rule = options.defaultRule
         }
       }
 
       return async (root, args, ctx, info, next) => {
         // Cache
         if (!ctx) {
-          ctx = {} as IShieldContext
+          ctx = {} as ShieldContext
         }
 
         if (!ctx._shield) {
@@ -75,16 +55,22 @@ function schemaPlugin(settings: Settings) {
 
         // Execution
         try {
-          const res = await rule.resolve(root, args, ctx, info, options)
-          if (res === true) {
+          const allowed = await rule.resolve(root, args, ctx, info, options)
+          if (allowed === true) {
             return await next(root, args, ctx, info)
-          } else if (res === false) {
-            if (typeof options.fallbackError === 'function') {
-              return await options.fallbackError(null, root, args, ctx, info)
+          } else if (allowed === false) {
+            if (typeof options.defaultError === 'function') {
+              return await options.defaultError(
+                new Error(),
+                root,
+                args,
+                ctx,
+                info
+              )
             }
-            return options.fallbackError
+            return options.defaultError
           } else {
-            return res
+            return allowed
           }
         } catch (err) {
           if (options.debug) {
@@ -92,10 +78,10 @@ function schemaPlugin(settings: Settings) {
           } else if (options.allowExternalErrors) {
             return err
           } else {
-            if (typeof options.fallbackError === 'function') {
-              return await options.fallbackError(err, root, args, ctx, info)
+            if (typeof options.defaultError === 'function') {
+              return await options.defaultError(err, root, args, ctx, info)
             }
-            return options.fallbackError
+            return options.defaultError
           }
         }
       }
