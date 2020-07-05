@@ -1,4 +1,6 @@
 import { RuntimePlugin } from 'nexus/plugin'
+import { nexusShield } from 'nexus-shield'
+
 import { Settings } from './settings'
 import { schemaPlugin } from './schema'
 
@@ -7,7 +9,7 @@ export const plugin: RuntimePlugin<Settings, 'required'> = (settings) => (
 ) => {
   return {
     schema: {
-      plugins: [schemaPlugin(settings)],
+      plugins: [schemaPlugin(settings), nexusShield(settings.options || {})],
     },
   }
 }
